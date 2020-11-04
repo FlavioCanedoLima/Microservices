@@ -61,7 +61,7 @@ namespace Canedo.Identity.Api.Controllers
                 return BadRequest();
             }
 
-            return Ok();
+            return Ok(await _userManager.FindByEmailAsync(loginAccount.Email));
         }
     }
 }
