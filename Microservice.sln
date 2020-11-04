@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30621.155
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7C7AD933-E472-4E5C-AE29-D9E2317CAC1D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{015E9965-8E38-42ED-91AC-18AFA342FD6A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Identity", "Identity", "{A3A3F865-2C6A-4B5C-974D-12EB50CFE3BF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Canedo.Identity.Api", "src\services\Canedo.Identity.Api\Canedo.Identity.Api.csproj", "{2835E5F5-2ECC-4603-9F48-1149651F94E7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2835E5F5-2ECC-4603-9F48-1149651F94E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2835E5F5-2ECC-4603-9F48-1149651F94E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2835E5F5-2ECC-4603-9F48-1149651F94E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2835E5F5-2ECC-4603-9F48-1149651F94E7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{015E9965-8E38-42ED-91AC-18AFA342FD6A} = {7C7AD933-E472-4E5C-AE29-D9E2317CAC1D}
+		{A3A3F865-2C6A-4B5C-974D-12EB50CFE3BF} = {015E9965-8E38-42ED-91AC-18AFA342FD6A}
+		{2835E5F5-2ECC-4603-9F48-1149651F94E7} = {A3A3F865-2C6A-4B5C-974D-12EB50CFE3BF}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A5AEBE16-F9A6-4C87-A4A9-752A359B164D}
+	EndGlobalSection
+EndGlobal
