@@ -1,13 +1,13 @@
-﻿using Canedo.Identity.Api.ViewModels;
+﻿using Canedo.Identity.Api.Extensions;
+using Canedo.Identity.Api.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace Canedo.Identity.Api.Controllers
 {
-    [ApiController]
     [Route("api/account")]
-    public class AccountController : Controller
+    public class AccountController : CustomController
     {
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
@@ -21,9 +21,9 @@ namespace Canedo.Identity.Api.Controllers
         [HttpPost("create-account")]
         public async Task<ActionResult> CreateAccountAsync(CreateAccountViewModel createAccount) 
         {
-            if (ModelState.IsValid == false) 
+            if (ModelStateIsNotValid()) 
             {
-                return BadRequest();
+                return CustomResponse(ModelState);
             }
 
             var user = new IdentityUser 
@@ -37,18 +37,20 @@ namespace Canedo.Identity.Api.Controllers
 
             if (result.Succeeded == false) 
             {
-                return BadRequest();
+                result.Errors.InlineForEach(e => AddError(e.Description));
+
+                return CustomResponse();
             }
 
-            return Ok();
+            return CustomResponse();
         }
 
         [HttpPost("login-account")]
         public async Task<ActionResult> LoginAsync(LoginAccountViewModel loginAccount) 
         {
-            if (ModelState.IsValid == false)
+            if (ModelStateIsNotValid())
             {
-                return BadRequest();
+                return CustomResponse(ModelState);
             }
 
             var result = await _signInManager.PasswordSignInAsync(userName: loginAccount.Email,
@@ -58,10 +60,15 @@ namespace Canedo.Identity.Api.Controllers
 
             if (result.Succeeded == false) 
             {
-                return BadRequest();
+                if (result.IsLockedOut) 
+                {
+                    return CustomResponse(error: "Usuário temporariamente bloqueado por tentativas inválidas");
+                }
+
+                return CustomResponse(error: "Usuário ou senha inválidos");
             }
 
-            return Ok(await _userManager.FindByEmailAsync(loginAccount.Email));
+            return CustomResponse(await _userManager.FindByEmailAsync(loginAccount.Email));
         }
     }
 }

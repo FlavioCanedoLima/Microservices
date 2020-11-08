@@ -16,9 +16,8 @@ using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegiste
 
 namespace Canedo.Identity.Api.Controllers
 {
-    [ApiController]
     [Route("api/auth")]
-    public class AuthController : Controller
+    public class AuthController : CustomController
     {
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
@@ -36,9 +35,9 @@ namespace Canedo.Identity.Api.Controllers
         [HttpPost("authenticate")]
         public async Task<ActionResult> AuthAsync(LoginAccountViewModel loginAccount) 
         {
-            if (ModelState.IsValid == false)
+            if (ModelStateIsNotValid())
             {
-                return BadRequest();
+                return CustomResponse(ModelState);
             }
 
             var result = await _signInManager.PasswordSignInAsync(userName: loginAccount.Email,
@@ -48,7 +47,12 @@ namespace Canedo.Identity.Api.Controllers
 
             if (result.Succeeded == false)
             {
-                return BadRequest();
+                if (result.IsLockedOut)
+                {
+                    return CustomResponse(error: "Usuário temporariamente bloqueado por tentativas inválidas");
+                }
+
+                return CustomResponse(error: "Usuário ou senha inválidos");
             }
 
             var user = await _userManager.FindByEmailAsync(loginAccount.Email);
@@ -69,7 +73,7 @@ namespace Canedo.Identity.Api.Controllers
                 }
             };
 
-            return Ok(response);
+            return CustomResponse(response);
         }
 
         private string GenerateToken(ClaimsIdentity claimsIdentity)
@@ -98,7 +102,7 @@ namespace Canedo.Identity.Api.Controllers
 
             var userRoles = await _userManager.GetRolesAsync(user);
 
-            userRoles.ForEach(roleValue => claims.Add(new Claim("role", roleValue)));
+            userRoles.InlineForEach(roleValue => claims.Add(new Claim("role", roleValue)));
 
             var identityClaims = new ClaimsIdentity();
 

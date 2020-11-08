@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace Canedo.Identity.Api.Controllers
 {
-    [ApiController]
     [Route("api/role")]
-    public class RoleController : Controller
+    public class RoleController : CustomController
     {
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _applicationDbContext;
@@ -26,10 +25,10 @@ namespace Canedo.Identity.Api.Controllers
 
             if (result.Succeeded == false)
             {
-                return BadRequest();
+                return CustomResponse(error: "Erro ao criar role");
             }
 
-            return Ok();
+            return CustomResponse();
         }
 
         [HttpGet("list-role")]
@@ -37,7 +36,7 @@ namespace Canedo.Identity.Api.Controllers
         {
             var result = _applicationDbContext.Roles;
 
-            return Ok(result);
+            return CustomResponse(result);
         }
 
         [HttpPut("edit-role/{id}")]
@@ -47,7 +46,7 @@ namespace Canedo.Identity.Api.Controllers
 
             if (resultDb is null) 
             {
-                return BadRequest("Role não encontrada para edição");
+                return CustomResponse(error: "Role não encontrada para edição");
             }
 
             resultDb.Name = name;
@@ -56,10 +55,10 @@ namespace Canedo.Identity.Api.Controllers
 
             if (result.Succeeded == false) 
             {
-                return BadRequest("Erro ao editar");
+                return CustomResponse(error: "Erro ao editar");
             }
 
-            return Ok();
+            return CustomResponse();
         }
     }
 }
