@@ -1,4 +1,5 @@
 ﻿using Canedo.Identity.Api.Configuration;
+using Canedo.Identity.Api.Controllers.Bases;
 using Canedo.Identity.Api.Extensions;
 using Canedo.Identity.Api.ViewModels;
 using Microsoft.AspNetCore.Identity;
@@ -35,11 +36,6 @@ namespace Canedo.Identity.Api.Controllers
         [HttpPost("authenticate")]
         public async Task<ActionResult> AuthAsync(LoginAccountViewModel loginAccount) 
         {
-            if (ModelStateIsNotValid())
-            {
-                return CustomResponse(ModelState);
-            }
-
             var result = await _signInManager.PasswordSignInAsync(userName: loginAccount.Email,
                                                                   password: loginAccount.Password,
                                                                   isPersistent: false,

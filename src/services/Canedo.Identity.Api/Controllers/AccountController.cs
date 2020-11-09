@@ -1,7 +1,12 @@
-﻿using Canedo.Identity.Api.Extensions;
+﻿using Canedo.Identity.Api.Controllers.Bases;
+using Canedo.Identity.Api.Extensions;
 using Canedo.Identity.Api.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.Security.AccessControl;
 using System.Threading.Tasks;
 
 namespace Canedo.Identity.Api.Controllers
@@ -21,11 +26,6 @@ namespace Canedo.Identity.Api.Controllers
         [HttpPost("create-account")]
         public async Task<ActionResult> CreateAccountAsync(CreateAccountViewModel createAccount) 
         {
-            if (ModelStateIsNotValid()) 
-            {
-                return CustomResponse(ModelState);
-            }
-
             var user = new IdentityUser 
             {
                 UserName = createAccount.Email,
@@ -48,11 +48,6 @@ namespace Canedo.Identity.Api.Controllers
         [HttpPost("login-account")]
         public async Task<ActionResult> LoginAsync(LoginAccountViewModel loginAccount) 
         {
-            if (ModelStateIsNotValid())
-            {
-                return CustomResponse(ModelState);
-            }
-
             var result = await _signInManager.PasswordSignInAsync(userName: loginAccount.Email,
                                                                   password: loginAccount.Password,
                                                                   isPersistent: false,
@@ -71,4 +66,6 @@ namespace Canedo.Identity.Api.Controllers
             return CustomResponse(await _userManager.FindByEmailAsync(loginAccount.Email));
         }
     }
+
+    
 }

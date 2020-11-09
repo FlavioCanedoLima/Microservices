@@ -1,4 +1,5 @@
-﻿using Canedo.Identity.Api.Data;
+﻿using Canedo.Identity.Api.Controllers.Bases;
+using Canedo.Identity.Api.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
