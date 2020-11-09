@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Canedo.Identity.Api.ViewModels
 {
-    public class CreateRoleViewModel 
+    public class EditRoleViewModel
     {
         [DisplayName("Role(papel)"),
          Required(ErrorMessage = "O campo {0} é obrigatório")]

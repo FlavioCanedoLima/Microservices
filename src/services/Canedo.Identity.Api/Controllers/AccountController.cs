@@ -3,10 +3,6 @@ using Canedo.Identity.Api.Extensions;
 using Canedo.Identity.Api.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Security.AccessControl;
 using System.Threading.Tasks;
 
 namespace Canedo.Identity.Api.Controllers
@@ -46,7 +42,7 @@ namespace Canedo.Identity.Api.Controllers
         }
 
         [HttpPost("login-account")]
-        public async Task<ActionResult> LoginAsync(LoginAccountViewModel loginAccount) 
+        public async Task<ActionResult<IdentityUser>> LoginAsync(LoginAccountViewModel loginAccount) 
         {
             var result = await _signInManager.PasswordSignInAsync(userName: loginAccount.Email,
                                                                   password: loginAccount.Password,
@@ -66,6 +62,4 @@ namespace Canedo.Identity.Api.Controllers
             return CustomResponse(await _userManager.FindByEmailAsync(loginAccount.Email));
         }
     }
-
-    
 }

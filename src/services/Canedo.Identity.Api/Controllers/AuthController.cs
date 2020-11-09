@@ -34,7 +34,7 @@ namespace Canedo.Identity.Api.Controllers
         }
 
         [HttpPost("authenticate")]
-        public async Task<ActionResult> AuthAsync(LoginAccountViewModel loginAccount) 
+        public async Task<ActionResult<AuthViewModel>> AuthAsync(LoginAccountViewModel loginAccount) 
         {
             var result = await _signInManager.PasswordSignInAsync(userName: loginAccount.Email,
                                                                   password: loginAccount.Password,
@@ -61,16 +61,18 @@ namespace Canedo.Identity.Api.Controllers
             {
                 AccessToken = encodedToken,
                 ExpiresIn = TimeSpan.FromHours(_appSettings.ExpirationHour).TotalSeconds,
-                UserToken = new AuthViewModel.UserTokenViewModel
+                UserToken = new UserTokenViewModel
                 {
                     Id = user.Id,
                     Email = user.Email,
-                    Claims = claims.Select(c => new AuthViewModel.UserTokenViewModel.UserClaimViewModel { Type = c.Type, Value = c.Value })
+                    Claims = claims.Select(c => new UserClaimViewModel { Type = c.Type, Value = c.Value })
                 }
             };
 
             return CustomResponse(response);
         }
+
+        #region -- Private Methods --
 
         private string GenerateToken(ClaimsIdentity claimsIdentity)
         {
@@ -87,8 +89,7 @@ namespace Canedo.Identity.Api.Controllers
 
             return tokenHandler.WriteToken(token);
         }
-
-        private async Task<ClaimsIdentity> ConfigureUserClaimsAsync(IdentityUser user, IList<Claim> claims) 
+        private async Task<ClaimsIdentity> ConfigureUserClaimsAsync(IdentityUser user, IList<Claim> claims)
         {
             claims.Add(new Claim(JwtRegisteredClaimNames.Sub, user.Id));
             claims.Add(new Claim(JwtRegisteredClaimNames.Email, user.Email));
@@ -106,10 +107,11 @@ namespace Canedo.Identity.Api.Controllers
 
             return identityClaims;
         }
-
         private static long ToUnixEpochDate(DateTime date)
         {
-            return (long)Math.Round((date.ToUniversalTime() - new DateTimeOffset(year: 1970, month: 1, day: 1, hour: 0 , minute: 0, second: 0, offset: TimeSpan.Zero)).TotalSeconds);
+            return (long)Math.Round((date.ToUniversalTime() - new DateTimeOffset(year: 1970, month: 1, day: 1, hour: 0, minute: 0, second: 0, offset: TimeSpan.Zero)).TotalSeconds);
         }
+
+        #endregion
     }
 }

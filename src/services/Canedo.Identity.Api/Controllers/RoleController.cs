@@ -1,5 +1,6 @@
 ﻿using Canedo.Identity.Api.Controllers.Bases;
 using Canedo.Identity.Api.Data;
+using Canedo.Identity.Api.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -20,9 +21,9 @@ namespace Canedo.Identity.Api.Controllers
         }
 
         [HttpPost("create-role")]
-        public async Task<ActionResult> CreateRuleAsync(string roleName)
+        public async Task<ActionResult> CreateRuleAsync(CreateRoleViewModel createRole)
         {
-            var result = await _roleManager.CreateAsync(new IdentityRole(roleName));
+            var result = await _roleManager.CreateAsync(new IdentityRole(createRole.RoleName));
 
             if (result.Succeeded == false)
             {
@@ -33,7 +34,7 @@ namespace Canedo.Identity.Api.Controllers
         }
 
         [HttpGet("list-role")]
-        public async Task<ActionResult> ListRolesAsync()
+        public async Task<ActionResult<IdentityRole>> ListRolesAsync()
         {
             var result = _applicationDbContext.Roles;
 
@@ -41,7 +42,7 @@ namespace Canedo.Identity.Api.Controllers
         }
 
         [HttpPut("edit-role/{id}")]
-        public async Task<ActionResult> EditRoleAsync(Guid id, string name) 
+        public async Task<ActionResult> EditRoleAsync(Guid id, EditRoleViewModel editRole) 
         {
             var resultDb = await _roleManager.FindByIdAsync(id.ToString());
 
@@ -50,7 +51,7 @@ namespace Canedo.Identity.Api.Controllers
                 return CustomResponse(error: "Role não encontrada para edição");
             }
 
-            resultDb.Name = name;
+            resultDb.Name = editRole.RoleName;
 
             var result = await _roleManager.UpdateAsync(resultDb);
 
