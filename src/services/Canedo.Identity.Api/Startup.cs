@@ -1,6 +1,7 @@
 using Canedo.Identity.Api.Configuration;
 using Canedo.Identity.Api.Configuration.Filters;
 using Canedo.Identity.Api.Data;
+using Canedo.Identity.Api.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -33,6 +34,7 @@ namespace Canedo.Identity.Api
             services
                 .AddDefaultIdentity<IdentityUser>()
                 .AddRoles<IdentityRole>()
+                .AddErrorDescriber<PortugueseIdentityErrorDescriber>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
