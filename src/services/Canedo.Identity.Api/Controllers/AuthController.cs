@@ -34,13 +34,12 @@ namespace Canedo.Identity.Api.Controllers
         }
 
         [HttpPost("authenticate")]
-        public async Task<ActionResult<AuthViewModel>> AuthAsync(LoginAccountViewModel loginAccount) 
+        public async Task<ActionResult<AuthViewModel>> AuthAsync(LoginAccountViewModel loginAccount)
         {
             var result = await _signInManager.PasswordSignInAsync(userName: loginAccount.Email,
                                                                   password: loginAccount.Password,
                                                                   isPersistent: false,
                                                                   lockoutOnFailure: true);
-
             if (result.Succeeded == false)
             {
                 if (result.IsLockedOut)
@@ -51,44 +50,11 @@ namespace Canedo.Identity.Api.Controllers
                 return CustomResponse(error: "Usuário ou senha inválidos");
             }
 
-            var user = await _userManager.FindByEmailAsync(loginAccount.Email);
-            var claims = await _userManager.GetClaimsAsync(user);
-
-            var identityClaims = await ConfigureUserClaimsAsync(user, claims);
-            var encodedToken = GenerateToken(identityClaims);
-
-            var response = new AuthViewModel
-            {
-                AccessToken = encodedToken,
-                ExpiresIn = TimeSpan.FromHours(_appSettings.ExpirationHour).TotalSeconds,
-                UserToken = new UserTokenViewModel
-                {
-                    Id = user.Id,
-                    Email = user.Email,
-                    Claims = claims.Select(c => new UserClaimViewModel { Type = c.Type, Value = c.Value })
-                }
-            };
-
-            return CustomResponse(response);
+            return CustomResponse(await GenerateToken(loginAccount));
         }
 
         #region -- Private Methods --
 
-        private string GenerateToken(ClaimsIdentity claimsIdentity)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-
-            var token = tokenHandler.CreateToken(new SecurityTokenDescriptor
-            {
-                Issuer = _appSettings.Issuer,
-                Audience = _appSettings.ValidOn,
-                Subject = claimsIdentity,
-                Expires = DateTime.UtcNow.AddHours(_appSettings.ExpirationHour),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_appSettings.Secret)), SecurityAlgorithms.HmacSha256Signature)
-            });
-
-            return tokenHandler.WriteToken(token);
-        }
         private async Task<ClaimsIdentity> ConfigureUserClaimsAsync(IdentityUser user, IList<Claim> claims)
         {
             claims.Add(new Claim(JwtRegisteredClaimNames.Sub, user.Id));
@@ -106,6 +72,44 @@ namespace Canedo.Identity.Api.Controllers
             identityClaims.AddClaims(claims);
 
             return identityClaims;
+        }
+        private string ConfigureToken(ClaimsIdentity claimsIdentity)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            var token = tokenHandler.CreateToken(new SecurityTokenDescriptor
+            {
+                Issuer = _appSettings.Issuer,
+                Audience = _appSettings.ValidOn,
+                Subject = claimsIdentity,
+                Expires = DateTime.UtcNow.AddHours(_appSettings.ExpirationHour),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_appSettings.Secret)), SecurityAlgorithms.HmacSha256Signature)
+            });
+
+            return tokenHandler.WriteToken(token);
+        }
+        private AuthViewModel GetResponseToken(IdentityUser user, IList<Claim> claims, string encodedToken)
+        {
+            return new AuthViewModel
+            {
+                AccessToken = encodedToken,
+                ExpiresIn = TimeSpan.FromHours(_appSettings.ExpirationHour).TotalSeconds,
+                UserToken = new UserTokenViewModel
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    Claims = claims.Select(c => new UserClaimViewModel { Type = c.Type, Value = c.Value })
+                }
+            };
+        }
+        private async Task<AuthViewModel> GenerateToken(LoginAccountViewModel loginAccount)
+        {
+            var user = await _userManager.FindByEmailAsync(loginAccount.Email);
+            var claims = await _userManager.GetClaimsAsync(user);
+            var identityClaims = await ConfigureUserClaimsAsync(user, claims);
+            var encodedToken = ConfigureToken(identityClaims);
+
+            return GetResponseToken(user, claims, encodedToken);
         }
         private static long ToUnixEpochDate(DateTime date)
         {
